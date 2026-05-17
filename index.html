@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Diario Personal</title>
+<meta name="description" content="Tu diario personal: escribe, recuerda y reflexiona cada día." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+/* ===== Diario Personal - Estilos ===== */
+:root {
+  --bg: #faf8f5;
+  --surface: #ffffff;
+  --sidebar: #f6f3ee;
+  --text: #2a2440;
+  --muted: #8b8597;
+  --border: #ece8e0;
+  --primary: #7c5cd1;
+  --primary-hover: #6a4bbf;
+  --primary-soft: #ece5fa;
+  --accent: #f4eefc;
+  --danger: #d64545;
+  --radius: 16px;
+  --shadow: 0 4px 24px rgba(60, 40, 110, 0.06);
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+body.dark {
+  --bg: #14121f;
+  --surface: #1e1b2e;
+  --sidebar: #1a1726;
+  --text: #f3f0f7;
+  --muted: #7e778c;
+  --border: #2d2940;
+  --primary: #9475e8;
+  --primary-hover: #ab92f0;
+  --primary-soft: #2e2647;
+  --accent: #27203d;
+  --danger: #e65a5a;
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.5;
+  transition: background .3s, color .3s;
+}
+
+h1, h2, h3, .display {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input, textarea, select { font-family: inherit; font-size: 14px; color: inherit; }
+ul { list-style: none; }
+a { color: inherit; text-decoration: none; }
+
+/* ===== Layout ===== */
+.app { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 240px;
+  background: var(--sidebar);
+  border-right: 1px solid var(--border);
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.brand {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 36px; padding: 0 8px;
+}
+.brand-icon {
+  width: 36px; height: 36px; border-radius: 12px;
+  background: var(--primary-soft); color: var(--primary);
+  display: grid; place-items: center; font-size: 18px;
+}
+.brand-name { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 600; }
+
+.nav { display: flex; flex-direction: column; gap: 4px; }
+.nav-link {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 10px;
+  color: var(--muted); font-size: 14px;
+  transition: background .15s, color .15s;
+}
+.nav-link:hover { background: rgba(124, 92, 209, 0.07); color: var(--text); }
+.nav-link.active {
+  background: var(--primary-soft); color: var(--primary); font-weight: 600;
+}
+.nav-link svg { width: 18px; height: 18px; }
+
+.theme-toggle {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--muted); font-size: 12px; padding: 8px;
+  margin-top: auto;
+}
+.theme-toggle:hover { color: var(--text); }
+
+.main { flex: 1; min-width: 0; padding: 40px; max-width: 1280px; margin: 0 auto; width: 100%; }
+
+/* ===== Views ===== */
+.view { display: none; animation: fade .3s ease; }
+.view.active { display: block; }
+@keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+.page-head { margin-bottom: 28px; }
+.page-head h1 { font-size: 36px; }
+.page-head p { color: var(--muted); margin-top: 6px; }
+
+/* ===== Buttons ===== */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 18px; border-radius: 12px;
+  font-weight: 600; font-size: 14px;
+  background: var(--primary); color: #fff;
+  transition: background .15s, transform .15s;
+}
+.btn:hover { background: var(--primary-hover); }
+.btn:active { transform: scale(0.98); }
+.btn-ghost { background: transparent; color: var(--muted); }
+.btn-ghost:hover { background: rgba(0,0,0,0.05); color: var(--text); }
+.btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.btn-outline:hover { background: var(--accent); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: #b83838; }
+.btn-icon {
+  width: 34px; height: 34px; padding: 0; border-radius: 10px;
+  display: grid; place-items: center; background: transparent; color: var(--muted);
+}
+.btn-icon:hover { background: rgba(0,0,0,0.06); color: var(--text); }
+.btn-icon.danger:hover { color: var(--danger); }
+
+/* ===== Inputs ===== */
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label { font-size: 13px; font-weight: 600; color: var(--muted); }
+.input, .textarea, select.input {
+  width: 100%; padding: 10px 14px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; outline: none;
+  transition: border .15s, box-shadow .15s;
+}
+.input:focus, .textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+.textarea { resize: vertical; min-height: 120px; font-family: inherit; }
+.search { position: relative; }
+.search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); width: 16px; height: 16px; }
+.search .input { padding-left: 40px; }
+
+/* ===== Cards & sections ===== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+/* ===== Home hero ===== */
+.hero {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+  align-items: center;
+}
+.hero-text h1 { font-size: 44px; line-height: 1.1; }
+.hero-text p { color: var(--muted); margin: 12px 0 24px; max-width: 380px; }
+.hero-img {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.hero-img img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 24px;
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+}
+
+@media(max-width: 900px) {
+  .app { flex-direction: column; }
+  .sidebar { width: 100%; height: auto; position: relative; }
+  .home-grid { grid-template-columns: 1fr; }
+  .hero { grid-template-columns: 1fr; }
+}
+
+.card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18px;
+}
+.card-head h2 { font-size: 18px; }
+.card-head a { font-size: 12px; color: var(--muted); }
+.card-head a:hover { color: var(--primary); }
+
+.entry-item {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.entry-item:last-child { border-bottom: none; }
+.entry-item .meta { min-width: 0; }
+.entry-item .meta strong { display: block; font-weight: 600; }
+.entry-item .meta span { font-size: 12px; color: var(--muted); }
+.entry-item .mood {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--accent); display: grid; place-items: center;
+  font-size: 16px; flex-shrink: 0;
+}
+
+.quote-card {
+  background: var(--primary-soft);
+  border: none;
+}
+.quote-card .quote-label { font-size: 12px; color: var(--primary); margin-bottom: 12px; }
+.quote-card blockquote {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  line-height: 1.3;
+  color: var(--text);
+}
+.quote-card .spark { display: block; text-align: right; margin-top: 16px; color: var(--primary); }
+
+/* ===== Calendar ===== */
+.cal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.cal-head h3 { font-size: 16px; }
+.cal-nav { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; color: var(--muted); }
+.cal-nav:hover { background: var(--accent); color: var(--text); }
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+.cal-day-name { font-size: 11px; color: var(--muted); padding: 6px 0; }
+.cal-day {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  font-size: 13px;
+  display: grid; place-items: center;
+  position: relative;
+  transition: background .15s;
+}
+.cal-day:not(:empty):hover { background: var(--accent); }
+.cal-day.today { background: var(--accent); font-weight: 600; }
+.cal-day.selected { background: var(--primary); color: #fff; }
+.cal-day.marked::after {
+  content: ''; position: absolute; bottom: 4px; left: 50%;
+  transform: translateX(-50%);
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--primary);
+}
+.cal-day.selected.marked::after { background: #fff; }
+
+/* ===== Entries list ===== */
+.head-row {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap; margin-bottom: 20px;
+}
+.entries-list { display: flex; flex-direction: column; gap: 12px; }
+.entry-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 20px;
+  display: flex; gap: 14px; align-items: flex-start;
+  transition: border .15s;
+}
+.entry-card:hover { border-color: rgba(124, 92, 209, 0.35); }
+.entry-card .mood-big {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--accent); display: grid; place-items: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.entry-card .body { flex: 1; min-width: 0; }
+.entry-card h3 { font-size: 17px; margin-bottom: 4px; }
+.entry-card .info { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.entry-card p { white-space: pre-wrap; color: var(--text); opacity: 0.9; font-size: 14px; }
+.entry-card .actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+.empty {
+  text-align: center; padding: 60px 20px;
+  background: var(--surface); border: 1px dashed var(--border);
+  border-radius: 24px; color: var(--muted);
+}
+
+/* ===== Calendar page ===== */
+.cal-page-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 24px;
+}
+@media (max-width: 768px) {
+  .cal-page-grid { grid-template-columns: 1fr; }
+}
+.day-entries { display: flex; flex-direction: column; gap: 12px; }
+.day-entry {
+  background: var(--accent);
+  border-radius: 14px; padding: 14px;
+}
+.day-entry .top { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.day-entry .top strong { font-size: 14px; }
+.day-entry p { font-size: 14px; white-space: pre-wrap; }
+
+/* ===== Modales ===== */
+.modal-backdrop {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(20, 18, 31, 0.4); display: grid; place-items: center;
+  opacity: 0; visibility: hidden; transition: opacity .2s, visibility .2s; z-index: 100;
+}
+.modal-backdrop.open { opacity: 1; visibility: visible; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 32px; border-radius: 24px; width: 90%; max-width: 540px;
+  box-shadow: var(--shadow); transform: translateY(10px); transition: transform .2s;
+}
+.modal-backdrop.open .modal { transform: translateY(0); }
+.modal h2 { margin-bottom: 20px; font-size: 24px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; }
+
+.mood-picker { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.mood-btn {
+  padding: 8px 12px; border: 1px solid var(--border); border-radius: 10px;
+  font-size: 13px; display: flex; align-items: center; gap: 6px; transition: all .15s;
+}
+.mood-btn:hover { background: var(--bg); }
+.mood-btn.active { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); font-weight: 600; }
+
+.theme-options { display: flex; gap: 8px; }
+.theme-option { padding: 8px 16px; border: 1px solid var(--border); border-radius: 10px; font-size: 14px; }
+.theme-option.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+.reminder-form { display: flex; gap: 10px; flex-wrap: wrap; }
+.reminder-form .input { flex: 1; min-width: 150px; }
+.reminder-form button { height: 42px; }
+
+.reminder-item { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.reminder-item:last-child { border-bottom: none; }
+.reminder-item.done .text { text-decoration: line-through; color: var(--muted); }
+.reminder-item .info { flex: 1; }
+.reminder-item .when { font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div>
+      <div class="brand">
+        <div class="brand-icon">✦</div>
+        <div class="brand-name">Diario</div>
+      </div>
+      <nav class="nav" id="nav">
+        <a class="nav-link active" data-view="home" href="#home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/></svg>
+          Inicio
+        </a>
+        <a class="nav-link" data-view="entries" href="#entries">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h11a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3z"/><path d="M4 17a3 3 0 0 1 3-3h11"/></svg>
+          Entradas
+        </a>
+        <a class="nav-link" data-view="calendar" href="#calendar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+          Calendario
+        </a>
+        <a class="nav-link" data-view="reminders" href="#reminders">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0v5l2 3H4l2-3z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg>
+          Recordatorios
+        </a>
+        <a class="nav-link" data-view="settings" href="#settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+          Ajustes
+        </a>
+      </nav>
+    </div>
+    <button class="theme-toggle" id="themeToggle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <span id="themeLabel">Tema oscuro</span>
+    </button>
+  </aside>
+
+  <main class="main">
+
+    <section class="view active" id="view-home">
+      <div class="hero">
+        <div class="hero-text">
+          <h1>Bienvenida de nuevo, <span id="greetingName">Ana</span> 🌿</h1>
+          <p>Cada día es una nueva página en tu historia.</p>
+          <button class="btn" onclick="openEntryModal()">+ Nueva entrada</button>
+        </div>
+        <div class="hero-img">
+          <img src="https://img.freepik.com/vector-premium/mujer-profesional-artesania-mano-letra-pincel-caligrafia-diseno-plano-espacio-trabajo_1332469-1508.jpg?semt=ais_hybrid&w=740&q=80" alt="Ilustración de cabecera" />
+        </div>
+      </div>
+
+      <div class="home-grid">
+        <div class="card">
+          <div class="card-head">
+            <h2>Últimas entradas</h2>
+            <a href="#entries" data-view="entries">Ver todas</a>
+          </div>
+          <ul id="latestEntries"></ul>
+        </div>
+        <div class="card">
+          <div id="homeCalendar"></div>
+        </div>
+        <div class="card quote-card">
+          <div class="quote-label">Frase del día</div>
+          <blockquote id="quoteText"></blockquote>
+          <span class="spark">✨</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-entries">
+      <div class="head-row">
+        <div>
+          <h1 class="display" style="font-size:36px">Entradas</h1>
+          <p style="color:var(--muted);margin-top:6px">Todas tus reflexiones, en un solo lugar.</p>
+        </div>
+        <button class="btn" onclick="openEntryModal()">+ Nueva entrada</button>
+      </div>
+      <div class="search" style="margin-bottom:20px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input class="input" id="searchInput" placeholder="Buscar por título, contenido o emoción..." />
+      </div>
+      <div id="entriesList" class="entries-list"></div>
+    </section>
+
+    <section class="view" id="view-calendar">
+      <div class="page-head">
+        <h1>Calendario</h1>
+        <p>Revive cualquier día con un toque.</p>
+      </div>
+      <div class="cal-page-grid">
+        <div class="card"><div id="pageCalendar"></div></div>
+        <div class="card">
+          <div class="card-head">
+            <h2 id="dayTitle"></h2>
+            <button class="btn" onclick="openEntryModal(window.__selectedDate)">+ Añadir</button>
+          </div>
+          <div id="dayEntries" class="day-entries"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-reminders">
+      <div class="page-head">
+        <h1>Recordatorios</h1>
+        <p>Pequeñas notas para no olvidarte de ti.</p>
+      </div>
+      <div class="card" style="margin-bottom:20px">
+        <div class="reminder-form">
+          <input class="input" id="reminderText" placeholder="Tomar agua, meditar, llamar a mamá..." />
+          <input class="input" id="reminderDate" type="date" />
+          <button class="btn" onclick="addReminder()">Añadir</button>
+        </div>
+      </div>
+      <div id="remindersList" class="entries-list"></div>
+    </section>
+
+    <section class="view" id="view-settings">
+      <div class="page-head">
+        <h1>Ajustes</h1>
+        <p>Personaliza tu diario.</p>
+      </div>
+      <div class="card settings-section">
+        <h2>Perfil</h2>
+        <div class="field">
+          <label>Tu nombre</label>
+          <input class="input" id="settingsName" />
+        </div>
+        <div class="field">
+          <label>Tema</label>
+          <div class="theme-options" id="themeOptions">
+            <button class="theme-option" data-theme="light">Claro</button>
+            <button class="theme-option" data-theme="dark">Oscuro</button>
+          </div>
+        </div>
+      </div>
+      <div class="card settings-section" style="margin-top: 20px;">
+        <h2>Datos</h2>
+        <p style="color:var(--muted);font-size:14px;margin-bottom:14px">
+          Tus entradas se guardan localmente en este navegador.
+        </p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-outline" onclick="exportData()">Exportar mis datos</button>
+          <button class="btn btn-danger" onclick="resetData()">Borrar todo</button>
+        </div>
+        <p style="color:var(--muted);font-size:12px;margin-top:12px" id="dataStats"></p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="modal-backdrop" id="entryModal" onclick="if(event.target===this)closeEntryModal()">
+  <div class="modal">
+    <h2 id="modalTitle">Nueva entrada</h2>
+    <div class="field">
+      <label>Título</label>
+      <input class="input" id="entryTitle" placeholder="Un día especial" />
+    </div>
+    <div class="field">
+      <label>Fecha</label>
+      <input class="input" id="entryDate" type="date" />
+    </div>
+    <div class="field">
+      <label>¿Cómo te sientes?</label>
+      <div class="mood-picker" id="moodPicker"></div>
+    </div>
+    <div class="field">
+      <label>Tu historia</label>
+      <textarea class="textarea" id="entryContent" placeholder="Hoy quiero recordar..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeEntryModal()">Cancelar</button>
+      <button class="btn" onclick="saveEntry()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ Datos y estado ============ */
+const MOODS = {
+  happy:      { label: 'Feliz',      emoji: '😊' },
+  calm:       { label: 'En calma',    emoji: '😌' },
+  sad:        { label: 'Triste',      emoji: '😢' },
+  angry:      { label: 'Enojo',      emoji: '😠' },
+  thoughtful:{ label: 'Reflexiva',   emoji: '🤔' },
+  loved:     { label: 'Agradecida',  emoji: '🥰' },
+};
+const QUOTES = [
+  "Lo que hoy parece difícil, mañana será tu fuerza.",
+  "Cada día es una nueva página en tu historia.",
+  "Escribir es escucharte a ti misma.",
+  "Las pequeñas cosas también merecen ser recordadas.",
+  "Hoy es un buen día para empezar de nuevo.",
+  "Tu voice importa, incluso cuando solo te habla a ti.",
+  "Florecer toma tiempo, sé paciente contigo.",
+];
+
+const store = {
+  get(k, fb) { try { return JSON.parse(localStorage.getItem(k)) ?? fb; } catch { return fb; } },
+  set(k, v)  { localStorage.setItem(k, JSON.stringify(v)); },
+};
+let state = {
+  entries:   store.get('diary.entries', []),
+  reminders: store.get('diary.reminders', []),
+  settings:  store.get('diary.settings', { name: 'Ana', theme: 'light' }),
+};
+const persist = () => {
+  store.set('diary.entries', state.entries);
+  store.set('diary.reminders', state.reminders);
+  store.set('diary.settings', state.settings);
+};
+const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
+const todayISO = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
+const fmtLong = (iso) => {
+  if(!iso) return '';
+  const [y,m,d] = iso.split('-').map(Number);
+  return new Date(y, m-1, d).toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' });
+};
+const quoteOfDay = () => {
+  const d = new Date();
+  return QUOTES[(d.getFullYear()+d.getMonth()+d.getDate()) % QUOTES.length];
+};
+
+/* ============ Navegación ============ */
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-'+name)?.classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l => {
+    l.classList.toggle('active', l.dataset.view === name);
+  });
+  location.hash = name;
+  render();
+}
+document.querySelectorAll('[data-view]').forEach(el => {
+  el.onclick = (e) => { e.preventDefault(); showView(el.dataset.view); };
+});
+
+/* ============ Calendar ============ */
+const DAYS = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+function renderCalendar(containerId, opts = {}) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const cursorKey = containerId + '_cursor';
+  if (!window[cursorKey]) {
+    const t = new Date();
+    window[cursorKey] = { y: t.getFullYear(), m: t.getMonth() };
+  }
+  const c = window[cursorKey];
+  const marked = new Set(state.entries.map(e => e.date));
+  const selected = opts.selected;
+  const today = todayISO();
+
+  const first = new Date(c.y, c.m, 1);
+  const startDay = (first.getDay() + 6) % 7;
+  const daysInMonth = new Date(c.y, c.m+1, 0).getDate();
+
+  let html = `
+    <div class="cal-head">
+      <button class="cal-nav" data-cal-prev>‹</button>
+      <h3>${MONTHS[c.m]} ${c.y}</h3>
+      <button class="cal-nav" data-cal-next>›</button>
+    </div>
+    <div class="cal-grid">
+      ${DAYS.map(d => `<div class="cal-day-name">${d}</div>`).join('')}
+  `;
+  for (let i = 0; i < startDay; i++) html += `<div class="cal-day"></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const iso = `${c.y}-${String(c.m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const cls = [
+      'cal-day',
+      iso === today ? 'today' : '',
+      iso === selected ? 'selected' : '',
+      marked.has(iso) ? 'marked' : '',
+    ].filter(Boolean).join(' ');
+    html += `<button class="${cls}" data-iso="${iso}">${d}</button>`;
+  }
+  html += `</div>`;
+  container.innerHTML = html;
+
+  container.querySelector('[data-cal-prev]').onclick = () => {
+    c.m--; if (c.m < 0) { c.m = 11; c.y--; }
+    renderCalendar(containerId, opts);
+  };
+  container.querySelector('[data-cal-next]').onclick = () => {
+    c.m++; if (c.m > 11) { c.m = 0; c.y++; }
+    renderCalendar(containerId, opts);
+  };
+  container.querySelectorAll('[data-iso]').forEach(btn => {
+    btn.onclick = () => opts.onSelect?.(btn.dataset.iso);
+  });
+}
+
+/* ============ Render ============ */
+function render() {
+  const activeView = document.querySelector('.view.active');
+  if(!activeView) return;
+  const active = activeView.id.replace('view-','');
+  
+  document.getElementById('greetingName').textContent = state.settings.name || 'Ana';
+  document.getElementById('quoteText').textContent = '“' + quoteOfDay() + '”';
+
+  if (active === 'home') renderHome();
+  if (active === 'entries') renderEntries();
+  if (active === 'calendar') renderCalendarPage();
+  if (active === 'reminders') renderReminders();
+  if (active === 'settings') renderSettings();
+}
+
+function renderHome() {
+  const latest = [...state.entries].sort((a,b)=>b.createdAt-a.createdAt).slice(0,4);
+  const ul = document.getElementById('latestEntries');
+  ul.innerHTML = latest.length === 0
+    ? `<li style="color:var(--muted);font-size:14px">Aún no hay entradas. Empieza escribiendo lo que sientes hoy.</li>`
+    : latest.map(e => `
+      <li class="entry-item">
+        <div class="meta"><strong>${escape(e.title)}</strong><span>${fmtLong(e.date)}</span></div>
+        <div class="mood">${MOODS[e.mood]?.emoji || '😌'}</div>
+      </li>`).join('');
+  renderCalendar('homeCalendar', { selected: todayISO(), onSelect: iso => {
+    window.__selectedDate = iso; showView('calendar');
+  }});
+}
+
+function renderEntries() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const list = [...state.entries].sort((a,b)=>b.date.localeCompare(a.date)).filter(e => {
+    if (!q) return true;
+    return e.title.toLowerCase().includes(q)
+      || e.content.toLowerCase().includes(q)
+      || (MOODS[e.mood]?.label || '').toLowerCase().includes(q);
+  });
+  const container = document.getElementById('entriesList');
+  container.innerHTML = list.length === 0
+    ? `<div class="empty">No hay entradas todavía. Crea la primera ✨</div>`
+    : list.map(e => `
+      <div class="entry-card">
+        <div class="mood-big">${MOODS[e.mood]?.emoji || '😌'}</div>
+        <div class="body">
+          <h3>${escape(e.title)}</h3>
+          <div class="info">${fmtLong(e.date)} · ${MOODS[e.mood]?.label || ''}</div>
+          ${e.content ? `<p>${escape(e.content)}</p>` : ''}
+        </div>
+        <div class="actions">
+          <button class="btn-icon" onclick="openEntryModal(null,'${e.id}')" title="Editar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4z"/></svg>
+          </button>
+          <button class="btn-icon danger" onclick="deleteEntry('${e.id}')" title="Eliminar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          </button>
+        </div>
+      </div>`).join('');
+}
+
+function renderCalendarPage() {
+  if (!window.__selectedDate) window.__selectedDate = todayISO();
+  renderCalendar('pageCalendar', { selected: window.__selectedDate, onSelect: iso => {
+    window.__selectedDate = iso; renderCalendarPage();
+  }});
+  document.getElementById('dayTitle').textContent = fmtLong(window.__selectedDate);
+  const day = state.entries.filter(e => e.date === window.__selectedDate)
+    .sort((a,b)=>b.createdAt-a.createdAt);
+  const c = document.getElementById('dayEntries');
+  c.innerHTML = day.length === 0
+    ? `<p style="color:var(--muted);text-align:center;padding:30px 0">No hay entradas en este día.</p>`
+    : day.map(e => `
+      <div class="day-entry">
+        <div class="top"><span>${MOODS[e.mood]?.emoji || '😌'}</span><strong>${escape(e.title)}</strong></div>
+        ${e.content ? `<p>${escape(e.content)}</p>` : ''}
+      </div>`).join('');
+}
+
+function renderReminders() {
+  document.getElementById('reminderDate').value ||= todayISO();
+  const list = [...state.reminders].sort((a,b) => {
+    if (a.done !== b.done) return a.done ? 1 : -1;
+    return a.date.localeCompare(b.date);
+  });
+  const c = document.getElementById('remindersList');
+  c.innerHTML = list.length === 0
+    ? `<div class="empty">Sin recordatorios todavía.</div>`
+    : list.map(r => `
+      <div class="reminder-item ${r.done?'done':''}">
+        <input type="checkbox" ${r.done?'checked':''} onchange="toggleReminder('${r.id}')" />
+        <div class="info">
+          <div class="text">${escape(r.text)}</div>
+          <div class="when">${fmtLong(r.date)}</div>
+        </div>
+        <button class="btn-icon danger" onclick="deleteReminder('${r.id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        </button>
+      </div>`).join('');
+}
+
+function renderSettings() {
+  document.getElementById('settingsName').value = state.settings.name;
+  document.querySelectorAll('#themeOptions .theme-option').forEach(b => {
+    b.classList.toggle('active', b.dataset.theme === state.settings.theme);
+  });
+  document.getElementById('dataStats').textContent =
+    `${state.entries.length} entradas · ${state.reminders.length} recordatorios`;
+}
+
+/* ============ Acciones: entradas ============ */
+let editingId = null;
+let currentMood = 'calm';
+
+function openEntryModal(defaultDate = null, id = null) {
+  editingId = id;
+  const entry = id ? state.entries.find(e => e.id === id) : null;
+  document.getElementById('modalTitle').textContent = entry ? 'Editar entrada' : 'Nueva entrada';
+  document.getElementById('entryTitle').value = entry?.title || '';
+  document.getElementById('entryContent').value = entry?.content || '';
+  document.getElementById('entryDate').value = entry?.date || defaultDate || todayISO();
+  currentMood = entry?.mood || 'calm';
+  renderMoodPicker();
+  document.getElementById('entryModal').classList.add('open');
+}
+function closeEntryModal() { document.getElementById('entryModal').classList.remove('open'); }
+
+function renderMoodPicker() {
+  const c = document.getElementById('moodPicker');
+  c.innerHTML = Object.entries(MOODS).map(([k,v]) =>
+    `<button class="mood-btn ${k===currentMood?'active':''}" data-mood="${k}">${v.emoji} ${v.label}</button>`
+  ).join('');
+  c.querySelectorAll('[data-mood]').forEach(b => {
+    b.onclick = () => { currentMood = b.dataset.mood; renderMoodPicker(); };
+  });
+}
+
+function saveEntry() {
+  const title = document.getElementById('entryTitle').value.trim();
+  const content = document.getElementById('entryContent').value.trim();
+  const date = document.getElementById('entryDate').value || todayISO();
+  if (!title && !content) return;
+  if (editingId) {
+    state.entries = state.entries.map(e =>
+      e.id === editingId ? { ...e, title: title || 'Sin título', content, mood: currentMood, date } : e
+    );
+  } else {
+    state.entries.unshift({
+      id: uid(), title: title || 'Sin título', content,
+      mood: currentMood, date, createdAt: Date.now(),
+    });
+  }
+  persist(); closeEntryModal(); render();
+}
+function deleteEntry(id) {
+  if (!confirm('¿Eliminar esta entrada?')) return;
+  state.entries = state.entries.filter(e => e.id !== id);
+  persist(); render();
+}
+
+/* ============ Acciones: recordatorios ============ */
+function addReminder() {
+  const text = document.getElementById('reminderText').value.trim();
+  const date = document.getElementById('reminderDate').value || todayISO();
+  if (!text) return;
+  state.reminders.unshift({ id: uid(), text, date, done: false });
+  document.getElementById('reminderText').value = '';
+  persist(); render();
+}
+function toggleReminder(id) {
+  state.reminders = state.reminders.map(r => r.id === id ? { ...r, done: !r.done } : r);
+  persist(); render();
+}
+function deleteReminder(id) {
+  state.reminders = state.reminders.filter(r => r.id !== id);
+  persist(); render();
+}
+
+/* ============ Ajustes ============ */
+document.getElementById('settingsName').addEventListener('input', e => {
+  state.settings.name = e.target.value; persist();
+  document.getElementById('greetingName').textContent = e.target.value || 'Ana';
+});
+document.querySelectorAll('#themeOptions .theme-option').forEach(b => {
+  b.addEventListener('click', () => { setTheme(b.dataset.theme); renderSettings(); });
+});
+function setTheme(t) {
+  state.settings.theme = t; persist();
+  document.body.classList.toggle('dark', t === 'dark');
+  document.getElementById('themeLabel').textContent = t === 'dark' ? 'Tema claro' : 'Tema oscuro';
+}
+document.getElementById('themeToggle').onclick = () =>
+  setTheme(state.settings.theme === 'dark' ? 'light' : 'dark');
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `diario-${todayISO()}.json`; a.click();
+  URL.revokeObjectURL(url);
+}
+function resetData() {
+  if (!confirm('¿Borrar todas las entradas y recordatorios? Esta acción no se puede deshacer.')) return;
+  state.entries = []; state.reminders = []; persist(); render();
+}
+
+/* ============ Util ============ */
+function escape(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+document.getElementById('searchInput').addEventListener('input', renderEntries);
+
+/* ============ Init ============ */
+setTheme(state.settings.theme);
+const initial = (location.hash || '#home').slice(1);
+if (['home','entries','calendar','reminders','settings'].includes(initial)) showView(initial);
+else render();
+</script>
+</body>
+</html>
+
